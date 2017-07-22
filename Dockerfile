@@ -39,4 +39,3 @@ RUN apk --update upgrade --no-cache && \
 WORKDIR $HOME
 
 CMD ["/bin/sh"]
-
