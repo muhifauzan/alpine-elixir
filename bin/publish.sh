@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 REPO=muhifauzan/alpine-elixir
 REFRESHED_AT=$(cat REFRESHED_AT)

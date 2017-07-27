@@ -18,20 +18,21 @@ ENV DIALYZER_PLT=${DIALYXIR_PLT_CORE_PATH}/dialyxir_erlang-${ERLANG_VERSION}.plt
 WORKDIR /tmp/elixir-build
 
 RUN apk --update upgrade --no-cache && \
-    # Install Elixir build deps
+    echo "/////////////// Installing Elixir build deps /////" && \
     apk add --no-cache --virtual .elixir-build \
       git \
       make && \
-    # Shallow clone Elixir
+    echo "///////////////////// Shallow cloning Elixir /////" && \
     git clone -b v${ELIXIR_VERSION} --single-branch --depth 1 https://github.com/elixir-lang/elixir.git . && \
+    echo "/////////////////////////// Compiling Elixir /////" && \
     make && make install && \
     mix local.hex --force && \
     mix local.rebar --force && \
-    # Build dialyzer PLT
+    echo "////////////////////// Building dialyzer PLT /////" && \
     mkdir -p $DIALYXIR_PLT_CORE_PATH && \
     dialyzer --build_plt --apps erts kernel stdlib crypto mnesia && \
     dialyzer --build_plt --apps lib/*/ebin --output_plt $ELIXIR_PLT && \
-    # Cleanup
+    echo "//////////////////////////////// Cleaning up /////" && \
     cd $HOME && \
     rm -rf /tmp/elixir-build && \
     apk del --force .elixir-build
