@@ -4,6 +4,7 @@ FROM muhifauzan/alpine-erlang:${ERLANG_VERSION}
 
 ARG REFRESHED_AT
 ARG ELIXIR_VERSION
+ARG ELIXIR_REF
 
 # Important!  Update this no-op ENV variable when this Dockerfile
 # is updated with the current date. It will force refresh of all
@@ -23,7 +24,11 @@ RUN apk --update upgrade --no-cache && \
       git \
       make && \
     echo "///////////////////// Shallow cloning Elixir /////" && \
-    git clone -b v${ELIXIR_VERSION} --single-branch --depth 1 https://github.com/elixir-lang/elixir.git . && \
+    if [ -z $ELIXIR_REF ]; then \
+      git clone -b v${ELIXIR_VERSION} --single-branch --depth 1 https://github.com/elixir-lang/elixir.git .; \
+    else \
+      git clone -b master --single-branch --depth 1 https://github.com/elixir-lang/elixir.git . && git checkout $ELIXIR_REF; \
+    fi && \
     echo "/////////////////////////// Compiling Elixir /////" && \
     make && make install && \
     mix local.hex --force && \
@@ -31,7 +36,7 @@ RUN apk --update upgrade --no-cache && \
     echo "////////////////////// Building dialyzer PLT /////" && \
     mkdir -p $DIALYXIR_PLT_CORE_PATH && \
     dialyzer --build_plt --apps erts kernel stdlib crypto mnesia && \
-    dialyzer --build_plt --apps lib/*/ebin --output_plt $ELIXIR_PLT && \
+    dialyzer -pa lib/elixir/ebin --build_plt --output_plt $ELIXIR_PLT --apps lib/elixir/ebin/elixir.beam lib/elixir/ebin/Elixir.Kernel.beam && \
     echo "//////////////////////////////// Cleaning up /////" && \
     cd $HOME && \
     rm -rf /tmp/elixir-build && \
