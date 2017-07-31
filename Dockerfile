@@ -1,46 +1,44 @@
-ARG ERLANG_VERSION
-
-FROM muhifauzan/alpine-erlang:${ERLANG_VERSION}
-
-ARG REFRESHED_AT
-ARG ELIXIR_VERSION
-ARG ELIXIR_REF
+FROM muhifauzan/alpine-erlang:20.0.1
 
 # Important!  Update this no-op ENV variable when this Dockerfile
 # is updated with the current date. It will force refresh of all
 # of the base images and things like `apt-get update` won't be using
 # old cached versions when the Dockerfile is built.
-ENV REFRESHED_AT=$REFRESHED_AT \
-    ELIXIR_VERSION=$ELIXIR_VERSION \
-    DIALYXIR_PLT_CORE_PATH=${HOME}/.dialyxir_plt_core
-ENV DIALYZER_PLT=${DIALYXIR_PLT_CORE_PATH}/dialyxir_erlang-${ERLANG_VERSION}.plt \
-    ELIXIR_PLT=${DIALYXIR_PLT_CORE_PATH}/dialyxir_erlang-${ERLANG_VERSION}_elixir-${ELIXIR_VERSION}.plt
+ENV REFRESHED_AT=2017-07-31 \
+    ELIXIR_VERSION=1.4.5
+ENV DIALYZER_PLT=$DIALYZER_PLT_PATH/dialyxir_erlang-$ERLANG_VERSION.plt \
+    ELIXIR_PLT=$DIALYZER_PLT_PATH/dialyxir_erlang-$ERLANG_VERSION_elixir-$ELIXIR_VERSION.plt
 
 WORKDIR /tmp/elixir-build
 
 RUN apk --update upgrade --no-cache && \
     echo "/////////////// Installing Elixir build deps /////" && \
     apk add --no-cache --virtual .elixir-build \
-      git \
       make && \
     echo "///////////////////// Shallow cloning Elixir /////" && \
-    if [ -z $ELIXIR_REF ]; then \
-      git clone -b v${ELIXIR_VERSION} --single-branch --depth 1 https://github.com/elixir-lang/elixir.git .; \
-    else \
-      git clone -b master --single-branch --depth 1 https://github.com/elixir-lang/elixir.git . && git checkout $ELIXIR_REF; \
-    fi && \
+    git clone -b v$ELIXIR_VERSION --single-branch --depth 1 https://github.com/elixir-lang/elixir.git . && \
     echo "/////////////////////////// Compiling Elixir /////" && \
     make && make install && \
     mix local.hex --force && \
-    mix local.rebar --force && \
-    echo "////////////////////// Building dialyzer PLT /////" && \
-    mkdir -p $DIALYXIR_PLT_CORE_PATH && \
-    dialyzer --build_plt --apps erts kernel stdlib crypto mnesia && \
-    dialyzer -pa lib/elixir/ebin --build_plt --output_plt $ELIXIR_PLT --apps lib/elixir/ebin/elixir.beam lib/elixir/ebin/Elixir.Kernel.beam && \
-    echo "//////////////////////////////// Cleaning up /////" && \
-    cd $HOME && \
+    mix local.rebar --force
+
+WORKDIR /tmp/dialyxir
+
+RUN echo "////////////////////// Building dialyzer PLT /////" && \
+    git clone https://github.com/jeremyjh/dialyxir.git . && \
+    MIX_ENV=prod mix do compile, archive.build, archive.install --force && \
+    cd ../ && \
+    mix dialyzer --plt && \
+    rm $DIALYZER_PLT_PATH/* && \
+    mv $HOME/.mix/dialyxir* $DIALYZER_PLT_PATH
+
+WORKDIR $HOME
+
+RUN echo "//////////////////////////////// Cleaning up /////" && \
     rm -rf /tmp/elixir-build && \
-    apk del --force .elixir-build
+    apk del --force .elixir-build && \
+    rm -rf /tmp/dialyxir && \
+    rm -rf .mix/archives/dialyxir*
 
 WORKDIR $HOME
 
