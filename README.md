@@ -16,8 +16,8 @@ version. The Erlang apps that were included are `erts`, `kernel`, `stdlib`, and
 `crypto`. The Erlang output file is `dialyxir_erlang-20.0.1.plt` and the Elixir
 output file is `dialyxir_erlang-20.0.1_elixir-1.4.5.plt`. All is stored in
 `DIALYZER_PLT_PATH` directory. This is useful when you're working with
-Dialyxir. Add dialyzer:
-`[plt_core_path: System.get_env("DIALYZER_PLT_PATH")]` to your `mix.exs`:
+Dialyxir. Add `dialyzer: [plt_core_path: System.get_env("DIALYZER_PLT_PATH")]`
+to your `mix.exs`:
 
 ```shell
 def project do
