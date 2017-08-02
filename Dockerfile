@@ -30,7 +30,7 @@ RUN apk --update upgrade --no-cache && \
     rm $DIALYZER_PLT_PATH/* && \
     mv $HOME/.mix/dialyxir* $DIALYZER_PLT_PATH && \
     echo "//////////////////////////////// Cleaning up /////" && \
-    cd $HOME
+    cd $HOME && \
     rm -rf /tmp/elixir-build && \
     apk del --force .elixir-build && \
     rm -rf /tmp/dialyxir && \
