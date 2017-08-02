@@ -5,7 +5,7 @@ FROM muhifauzan/alpine-erlang:20.0.1
 # of the base images and things like `apt-get update` won't be using
 # old cached versions when the Dockerfile is built.
 ENV REFRESHED_AT=2017-07-31 \
-    ELIXIR_VERSION=1.4.5
+    ELIXIR_VERSION=1.5.0
 ENV DIALYZER_PLT=$DIALYZER_PLT_PATH/dialyxir_erlang-$ERLANG_VERSION.plt \
     ELIXIR_PLT=$DIALYZER_PLT_PATH/dialyxir_erlang-$ERLANG_VERSION_elixir-$ELIXIR_VERSION.plt
 
