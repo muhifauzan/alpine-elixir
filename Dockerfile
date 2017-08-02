@@ -20,21 +20,17 @@ RUN apk --update upgrade --no-cache && \
     echo "/////////////////////////// Compiling Elixir /////" && \
     make && make install && \
     mix local.hex --force && \
-    mix local.rebar --force
-
-WORKDIR /tmp/dialyxir
-
-RUN echo "////////////////////// Building dialyzer PLT /////" && \
+    mix local.rebar --force && \
+    echo "////////////////////// Building dialyzer PLT /////" && \
+    mkdir /tmp/dialyxir && cd /tmp/dialyxir && \
     git clone https://github.com/jeremyjh/dialyxir.git . && \
     MIX_ENV=prod mix do compile, archive.build, archive.install --force && \
     cd ../ && \
     mix dialyzer --plt && \
     rm $DIALYZER_PLT_PATH/* && \
-    mv $HOME/.mix/dialyxir* $DIALYZER_PLT_PATH
-
-WORKDIR $HOME
-
-RUN echo "//////////////////////////////// Cleaning up /////" && \
+    mv $HOME/.mix/dialyxir* $DIALYZER_PLT_PATH && \
+    echo "//////////////////////////////// Cleaning up /////" && \
+    cd $HOME
     rm -rf /tmp/elixir-build && \
     apk del --force .elixir-build && \
     rm -rf /tmp/dialyxir && \
