@@ -14,7 +14,7 @@ compilation toolchain, but that is left as an exercise for the reader.
 This image provide PLT that built against current Erlang/OTP and Elixir
 version. The Erlang apps that were included are `erts`, `kernel`, `stdlib`, and
 `crypto`. The Erlang output file is `dialyxir_erlang-20.0.1.plt` and the Elixir
-output file is `dialyxir_erlang-20.0.1_elixir-1.5.0.plt`. All is stored in
+output file is `dialyxir_erlang-20.0.1_elixir-1.5.0.plt`. PLT files are stored in
 `DIALYZER_PLT_PATH` directory. This is useful when you're working with
 Dialyxir. Add `dialyzer: [plt_core_path: System.get_env("DIALYZER_PLT_PATH")]`
 to your `mix.exs`:
